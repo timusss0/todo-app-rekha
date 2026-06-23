@@ -1,10 +1,13 @@
 const express = require("express");
+const path = require("path");
 
 const app = express();
 const PORT = 8080;
 
 app.use(express.json());
 app.use(express.static("public"));
+
+app.use(express.static(path.join(__dirname, "public")));
 
 let todos = [];
 
@@ -68,6 +71,12 @@ app.delete("/api/todos/:id", (req, res) => {
   res.json({ message: "deleted" });
 });
 
-app.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${PORT}`);
-});
+// 3. Modifikasi bagian app.listen agar tidak mengganggu sistem serverless Vercel
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(PORT, () => {
+    console.log(`Server running at http://localhost:${PORT}`);
+  });
+}
+
+// 4. WAJIB: Export module app di bagian paling bawah
+module.exports = app;
